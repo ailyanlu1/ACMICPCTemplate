@@ -1,0 +1,98 @@
+int u,v,w,d;
+int edge,head[MAXN];
+
+int fa[MAXN],query[MAXN][3],dist[MAXN];
+bool vis[MAXN];
+
+struct node
+{
+	int v,id;
+	node (int _v,int _id):v(_v),id(_id){}
+};
+
+int find(int x)
+{
+	if (x==fa[x]) return fa[x];
+	return fa[x]=find(fa[x]);
+}
+
+vector <vector<node> > mp;
+
+struct edgenode
+{
+	int to,next,w;
+} G[MAXM];
+
+void add_edge(int x,int y,int w)
+{
+	G[edge].to=y;
+	G[edge].w=w;
+	G[edge].next=head[x];
+	head[x]=edge++;
+}
+
+
+void tarjan(int u)
+{
+	vis[u]=true;
+	for (int i=0;i<mp[u].size();i++)
+	{
+		int v=mp[u][i].v,id=mp[u][i].id;
+		if (vis[v]) query[id][2]=find(v);
+	}
+	
+	for (int i=head[u];i!=-1;i=G[i].next)
+	{
+		int v=G[i].to,w=G[i].w;
+		if (!vis[v])
+		{
+			dist[v]=dist[u]+w;
+			tarjan(v);
+			fa[v]=u;
+		}
+	}
+}
+
+
+int main()
+{
+	scanf("%d",&T);
+	while (T--)
+	{	
+		memset(head,-1,sizeof(head));
+		edge=0;
+		
+		scanf("%d%d",&n,&m);
+		for (i=0;i<n-1;i++)
+		{
+			scanf("%d%d%d",&u,&v,&w);
+			add_edge(u,v,w);
+			add_edge(v,u,w);
+		}
+		
+		mp.clear();
+		mp.resize(n+4); 
+		
+		for (i=0;i<m;i++)
+		{
+			scanf("%d%d",&u,&v);
+			query[i][0]=u;
+			query[i][1]=v;
+			mp[u].push_back(node(v,i));
+			mp[v].push_back(node(u,i));
+		}
+		for (i=1;i<=n;i++) fa[i]=i;
+		memset(vis,0,sizeof(vis));
+		dist[1]=0;
+		tarjan(1);
+		
+		for (i=0;i<m;i++)
+		{
+			u=query[i][0];
+			v=query[i][1];
+			d=query[i][2];
+			printf("%d\n",dist[u]+dist[v]-2*dist[d]);
+		}
+	}
+	return 0;
+}

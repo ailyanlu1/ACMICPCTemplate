@@ -1,0 +1,100 @@
+class Segment_Tree{
+private:
+    int sum[MAXN << 2], upper[MAXN << 2];
+    void push_up(int rt){
+        sum[rt] = sum[rt << 1] + sum[rt << 1 | 1];
+        upper[rt] = max(upper[rt << 1], upper[rt << 1 | 1]);
+    }
+public:
+    void build(int rt = 1, int l = 1, int r = n){
+        if(l == r){ sum[rt] = upper[rt] = mw[l]; return; }
+        sum[rt] = 0; upper[rt] = -INF;
+        int m = (l + r) >> 1;
+        build(lchild); build(rchild);
+        push_up(rt);
+    }
+    void update(int P, int val, int rt = 1, int l = 1, int r = n){
+        if(l == r) { sum[rt] = upper[rt] = val; return; }
+        int m = (l + r) >> 1;
+        if(P <= m) update(P, val, lchild);
+        else update(P, val, rchild);
+        push_up(rt);
+    }
+    int query(int L, int R, bool opt, int rt = 1, int l = 1, int r = n){
+        if(L <= l && r <= R){
+            if(opt) return upper[rt];
+            else return sum[rt];
+        }
+        int m = (l + r) >> 1;
+        if(opt){
+            int lans = -INF, rans = -INF;
+            if(L <= m) lans = query(L, R, opt, lchild);
+            if(R > m) rans = query(L, R, opt, rchild);
+            return max(lans, rans);
+        }
+        else{
+            if(L > m) return query(L, R, opt, rchild);
+            else if(R <= m) return query(L, R, opt, lchild);
+            else return query(L, m, opt, lchild) + query(m + 1, R, opt, rchild);
+        }
+    }
+};
+ 
+class HLD: public Segment_Tree{
+public:
+    int dep[MAXN], fa[MAXN], sz[MAXN];
+    int son[MAXN], top[MAXN], dfn[MAXN], dfs_clock;
+ 
+    void init(){
+        memset(dep, 0, sizeof(dep));
+        memset(son, 0, sizeof(son));
+        dep[1] = 1;
+        dfs_clock = 0;
+    }
+    void dfs1(int u){
+        sz[u] = 1;
+        for(int i = 0; i < e[u].size(); i++){
+            int v = e[u][i];
+            if(dep[v]) continue;
+            dep[v] = dep[u] + 1;
+            fa[v] = u;
+            dfs1(v);
+            sz[u] += sz[v];
+            if(sz[son[u]] < sz[v])
+                son[u] = v;
+        }
+    }
+    void dfs2(int u, int tp){
+        top[u] = tp;
+        dfn[u] = ++dfs_clock;
+        mw[dfn[u]] = w[u];
+        if(son[u]) dfs2(son[u], tp); //拉链
+        for(int i = 0; i < e[u].size(); i++){
+            int v = e[u][i];
+            if(v == fa[u] || v == son[u]) continue;
+            dfs2(v, v); //建链
+        }
+    }
+    int getsum(int u, int v){
+        int ans = 0;
+        while(top[u] != top[v]){ //一直爬直到在u, v同一条重链
+            if(dep[top[u]] > dep[top[v]]) swap(u, v);
+            ans += query(dfn[top[v]], dfn[v], 0);
+            v = fa[top[v]];
+        }
+        if(dep[u] > dep[v]) swap(u, v);
+        ans += query(dfn[u], dfn[v], 0); //属于同一条重链的时候直接区间询问
+        return ans;
+    }
+    int getmax(int u, int v){
+        int ans = -INF;
+        while(top[u] != top[v]){
+            if(dep[top[u]] > dep[top[v]]) swap(u, v);
+            ans = max(ans, query(dfn[top[v]], dfn[v], 1));
+            v = fa[top[v]];
+        }
+        if(dep[u] > dep[v]) swap(u, v);
+        ans = max(ans, query(dfn[u], dfn[v], 1));
+        return ans;
+    }
+}hld;

@@ -1,0 +1,17 @@
+void qsort(int l,int r)
+{
+	int i,j,t,mid;
+	i=l;j=r;mid=a[(l+r)/2];
+	do
+	{
+		while(a[i]<mid) i++;
+		while(a[j]>mid) j--;
+		if (i<=j)
+		{
+			t=a[i];a[i]=a[j];a[j]=t;
+			i++;j--;
+		} 
+	} while (i<=j);
+	if (l<j) qsort(l,j);
+	if (i<r) qsort(i,r);
+}

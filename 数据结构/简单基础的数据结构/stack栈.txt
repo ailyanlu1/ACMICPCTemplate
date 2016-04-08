@@ -1,0 +1,8 @@
+#include <stack>
+using namespace std;
+stack <int> s;
+s.top(); 		//取栈顶
+s.push(x); 	//入栈
+s.pop(); 		//出栈
+s.empty(); 	//是否为空
+s.size();		//栈中元素个数

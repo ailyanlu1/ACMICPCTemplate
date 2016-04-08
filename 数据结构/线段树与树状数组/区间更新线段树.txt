@@ -1,0 +1,93 @@
+struct tree
+{
+	int l,r;
+	int sum,lazy;
+};
+
+tree t[MAXN*4];
+int a[MAXN];
+int temp,l,r,s;
+
+void pushdown(int k)
+{
+	int temp=t[k].lazy;
+	t[lc].lazy+=temp;
+	t[rc].lazy+=temp;
+	t[lc].sum+=(t[lc].r-t[lc].l+1)*temp;
+	t[rc].sum+=(t[rc].r-t[rc].l+1)*temp;
+	t[k].lazy=0;
+}
+
+void buildtree(int k,int l,int r)
+{
+	if (l==r)
+	{
+		t[k].l=l;t[k].r=r;
+		t[k].sum=a[l];
+		t[k].lazy=0;
+		return;
+	}
+	t[k].l=l;
+	t[k].r=r;
+	t[k].lazy=0;
+	buildtree(lc,l,mii);
+	buildtree(rc,mii+1,r);
+	t[k].sum=t[lc].sum+t[rc].sum;
+}
+
+void add(int k,int l,int r,int s)
+{
+	if ((t[k].l==l)&&(t[k].r==r))
+	{
+		t[k].lazy+=s;
+		t[k].sum+=(r-l+1)*s;
+		return;
+	}
+	int mid=(t[k].l+t[k].r)/2;
+	if (t[k].lazy!=0) pushdown(k);
+	if (r<=mid) add(lc,l,r,s);else
+    if (mid<l) add(rc,l,r,s);
+	else
+	{
+		add(lc,l,mid,s);
+		add(rc,mid+1,r,s);
+	}
+	t[k].sum=t[lc].sum+t[rc].sum;
+}
+
+
+int query(int k,int l,int r)
+{
+	if ((t[k].l==l)&&(t[k].r==r))
+	{
+		return t[k].sum;
+	}
+	int mid=(t[k].l+t[k].r)/2;
+	if (t[k].lazy!=0) pushdown(k);
+	if (mid<l) return query(rc,l,r);
+	if (r<=mid) return query(lc,l,r);
+	return query(lc,l,mid)+query(rc,mid+1,r);
+}
+
+int main()
+{
+	scanf("%d%d",&n,&m);
+	for (i=1;i<=n;i++)
+	{
+		scanf("%d",&a[i]);
+	}
+	buildtree(1,1,n);
+	while (m--)
+	{
+		scanf("%d",&temp);
+		if (temp==0)
+		{
+			scanf("%d%d",&l,&r);
+			printf("%d\n",query(1,l,r));
+		} else
+		{
+			scanf("%d%d%d",&l,&r,&s);
+			add(1,l,r,s);
+		}
+	}
+}

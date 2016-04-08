@@ -1,0 +1,10 @@
+inline int in() {
+    char ch=getchar();
+    while(ch<'0'||ch>'9') ch=getchar();
+    int res=0;
+    while(ch>='0' && ch<='9') {
+        res=res*10+ch-'0';
+        ch=getchar();
+    }
+    return res;
+}

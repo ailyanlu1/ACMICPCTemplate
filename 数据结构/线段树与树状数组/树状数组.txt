@@ -1,0 +1,42 @@
+区间查询，单点修改
+
+int Sum(int x)
+{
+    int sum=0;
+    while(n>0)
+    {
+         sum+=c[x];
+         x=x-(x&(-x));
+    }   
+    return sum;
+}
+void change(int i,int x)
+{
+     while(i<=n)
+     {
+          c[i]=c[i]+x;
+          i=i+lowbit(i);
+     }
+}
+
+
+单点查询，区间修改
+
+int C[MAXN];
+
+void update(int x,int y)
+{
+    for (int i=x;i>0;i-=(-i)&i)
+        C[i]+=y;
+}
+
+int query(int x)
+{
+    int s=0;
+    for (int k=x;k<=n;k+=(-k)&k) s+=C[k];
+    return s;
+}
+
+求逆序对
+
+维护树状数组，每加入一个数，查询有多少个数比它大（总数减去小于等于它的个数）

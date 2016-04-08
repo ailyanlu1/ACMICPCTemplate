@@ -1,0 +1,14 @@
+double rotating_calipers(Point *ch,int n)
+{
+    int q=1;
+    double ans=0;
+    ch[n]=ch[0];
+    for(int p=0; p<n; p++)
+    {
+        while(((ch[q+1]-ch[p+1])^(ch[p]-ch[p+1]))>((ch[q]-ch[p+1])^(ch[p]-ch[p+1]))) q=(q+1)%n;
+        ans=max(ans,max(Length(ch[p]-ch[q]),Length(ch[p+1]-ch[q+1])));
+    }
+    return ans;
+}
+//为什么是大于号而不是大于等于号？因为ch默认是凸多边形
+//旋转卡壳只是一种思想，需要灵活运用

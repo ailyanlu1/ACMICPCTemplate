@@ -1,0 +1,9 @@
+int fa[MAXN];
+int findfa(int x)
+{
+    return x==fa[x]?x:fa[x]=findfa(fa[x]);
+}
+void join(int x,int y)
+{
+    fa[findfa(x)]=findfa(y);
+}

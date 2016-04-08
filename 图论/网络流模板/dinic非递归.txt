@@ -1,0 +1,78 @@
+const int inf = 0x3f3f3f3f;
+struct edgenode
+{
+    int from,to,next;
+    int cap;
+}edge[MAXM];
+int Edge,head[MAXN],ps[MAXN],dep[MAXN];
+ 
+void addedge(int x,int y,int c)
+{
+    edge[Edge].from=x;
+    edge[Edge].to=y;
+    edge[Edge].cap=c;
+    edge[Edge].next=head[x];
+    head[x]=Edge++;
+     
+    edge[Edge].from=y;
+    edge[Edge].to=x;
+    edge[Edge].cap=0;
+    edge[Edge].next=head[y];
+    head[y]=Edge++;
+}
+ 
+int dinic(int n,int s,int t)
+{
+    int tr,flow=0;
+    int i,j,k,l,r,top;
+    while(1){
+        memset(dep,-1,(n+1)*sizeof(int));
+        for(l=dep[ps[0]=s]=0,r=1;l!=r;)//BFS部分，将给定图分层
+        {
+            for(i=ps[l++],j=head[i];j!=-1;j=edge[j].next)
+            {
+                if (edge[j].cap&&-1==dep[k=edge[j].to])
+                {
+                    dep[k]=dep[i]+1;ps[r++]=k;
+                    if(k==t)
+                    {
+                        l=r;
+                        break;
+                    }
+                }
+            }
+        }
+        if(dep[t]==-1)break;
+         
+        for(i=s,top=0;;)//DFS部分
+        {
+            if(i==t)//当前点就是汇点时
+            {
+                for(k=0,tr=inf;k<top;++k)
+                    if(edge[ps[k]].cap<tr)tr=edge[ps[l=k]].cap;
+                     
+                for(k=0;k<top;++k)
+                    edge[ps[k]].cap-=tr,edge[ps[k]^1].cap+=tr;
+                     
+                flow+=tr;
+                i=edge[ps[top=l]].from;
+            }
+             
+            for(j=head[i];j!=-1;j=edge[j].next)//找当前点所指向的点
+                if(edge[j].cap&&dep[i]+1==dep[edge[j].to]) break;
+                 
+            if(j!=-1)
+            {
+                ps[top++]=j;//当前点有所指向的点，把这个点加入栈中
+                i=edge[j].to;
+            }
+            else
+            {
+                if (!top) break;//当前点没有指向的点，回溯
+                dep[i]=-1;
+                i=edge[ps[--top]].from;
+            }
+        }
+    }
+    return flow;
+}

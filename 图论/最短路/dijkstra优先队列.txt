@@ -1,0 +1,22 @@
+void dijkstra(int s,int t)
+{
+    for (i=0;i<=n;i++) dis[i]=INF;
+    dis[s]=0;
+    priority_queue<pir,vector<pir>,greater<pir> > q;
+    q.push(MP(dis[s],s));
+    while (!q.empty())
+    {
+        int d=q.top().X;
+        int u=q.top().Y;
+        q.pop();
+        for (i=head[u];i!=-1;i=G[i].next)
+        {
+            int v=G[i].to;
+            if (dis[v]>d+G[i].cap)
+            {
+                dis[v]=d+G[i].cap;
+                q.push(MP(dis[v],v));
+            }
+        }
+    }
+}

@@ -1,0 +1,19 @@
+int edge,head[MAXN];
+struct edgenode
+{
+	int to,next,w;
+} G[MAXM];
+
+void add_edge(int x,int y,int w)
+{
+	G[edge].to=y;
+	G[edge].w=w;
+	G[edge].next=head[x];
+	head[x]=edge++;
+}
+
+int main()
+{
+	memset(head,-1,sizeof(head));
+	edge=0;
+}

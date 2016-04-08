@@ -1,0 +1,84 @@
+const double pi=acos(-1.0);
+int dcmp(double x) {if(fabs(x) < eps) return 0; else return x < 0 ? -1 : 1; }
+struct Vector
+{
+    double x, y;
+    Vector (double x=0, double y=0) :x(x),y(y) {}
+    Vector operator + (const Vector &B) const { return Vector (x+B.x,y+B.y); }
+    Vector operator - (const Vector &B) const { return Vector(x - B.x, y - B.y); }
+    Vector operator * (const double &p) const { return Vector(x*p, y*p); }
+    Vector operator / (const double &p) const { return Vector(x/p, y/p); }
+    double operator * (const Vector &B) const { return x*B.x + y*B.y;}//点积
+    double operator ^ (const Vector &B) const { return x*B.y - y*B.x;}//叉积
+    bool operator < (const Vector &b) const { return x < b.x || (x == b.x && y < b.y); }
+    bool operator ==(const Vector &b) const { return dcmp(x-b.x) == 0 && dcmp(y-b.y) == 0; }
+};
+typedef Vector Point;
+Point Read(){double x, y;scanf("%lf%lf", &x, &y);return Point(x, y);}
+double Length(Vector A){ return sqrt(A*A); }//向量的模
+double Angle(Vector A, Vector B){return acos(A*B / Length(A) / Length(B)); }//向量的夹角，返回值为弧度
+double Area2(Point A, Point B, Point C){ return (B-A)^(C-A); }//向量AB叉乘AC的有向面积
+Vector VRotate(Vector A, double rad){return Vector(A.x*cos(rad) - A.y*sin(rad), A.x*sin(rad) + A.y*cos(rad));}//向量A旋转rad弧度
+Point  PRotate(Point A, Point B, double rad){return A + VRotate(B-A, rad);}//将B点绕A点旋转rad弧度
+Vector Normal(Vector A){double l = Length(A);return Vector(-A.y/l, A.x/l);}//求向量A向左旋转90°的单位法向量,调用前确保A不是零向量
+
+Point GetLineIntersection/*求直线交点，调用前要确保两条直线有唯一交点*/(Point P, Vector v, Point Q, Vector w){double t = (w^(P - Q)) / (v^w);return P + v*t;}//在精度要求极高的情况下，可以自定义分数类
+double DistanceToLine/*P点到直线AB的距离*/(Point P, Point A, Point B){Vector v1 = B - A, v2 = P - A;return fabs(v1^v2) / Length(v1);}//不加绝对值是有向距离
+double DistanceToSegment/*点到线段的距离*/(Point P, Point A, Point B)
+{
+    if (A==B) return Length(P-A);
+    Vector v1=B-A,v2=P-A,v3=P-B;
+    if (dcmp(v1*v2)<0) return Length(v2);else
+    if (dcmp(v1*v3)>0) return Length(v3);else
+    return fabs(v1^v2)/Length(v1);
+}
+
+Point GetLineProjection/*点在直线上的射影*/(Point P, Point A, Point B)
+{
+    Vector v=B-A;
+    return A+v*((v*(P-A))/(v*v));
+}
+
+bool OnSegment/*判断点是否在线段上(含端点)*/(Point P,Point a1,Point a2)
+{
+    Vector v1=a1-P,v2=a2-P;
+    if (dcmp(v1^v2)==0 && min(a1.x,a2.x)<=P.x  && P.x<=max(a1.x,a2.x)  && min(a1.y,a2.y)<=P.y && P.y<=max(a1.y,a2.y)) return true;
+    return false;
+}
+
+bool SegmentInter/*线段相交判定*/(Point a1, Point a2, Point b1, Point b2)
+{
+    //if (OnSegment(a1,b1,b2) || OnSegment(a2,b1,b2) || OnSegment(b1,a1,a2) || OnSegment(b2,a1,a2)) return 1;
+    //如果只判断线段规范相交（不算交点）,上面那句可以删掉
+    double c1=(a2-a1)^(b1-a1),c2=(a2-a1)^(b2-a1);
+    double c3=(b2-b1)^(a1-b1),c4=(b2-b1)^(a2-b1);
+    return dcmp(c1)*dcmp(c2)<0 && dcmp(c3)*dcmp(c4)<0;
+}
+
+bool InTri/*判断点是否在三角形内*/(Point P, Point a,Point b,Point c)
+{
+    if (dcmp(fabs((c-a)^(c-b))-fabs((P-a)^(P-b))-fabs((P-b)^(P-c))-fabs((P-a)^(P-c)))==0) return true;
+    return false;
+}
+
+double PolygonArea/*求多边形面积，注意凸包P序号从0开始*/(Point *P ,int n)
+{
+    double ans = 0.0;
+    for(int i=1;i<n-1;i++)
+        ans+=(P[i]-P[0])^(P[i+1]-P[0]);
+    return ans/2;
+}
+bool CrossOfSegAndLine/*判断线段是否与直线相交*/(Point a1,Point a2,Point b1,Vector b2)
+{
+    if (OnSegment(b1,a1,a2) || OnSegment(b1+b2,a1,a2)) return true;
+    return dcmp(b2^(a1-b1))*dcmp(b2^(a2-b1))<0;
+}
+double Cross/*B-A和C-A的叉积*/(Point A, Point B,Point C)
+{
+    return (B-A)^(C-A);
+}
+double dis_pair_seg/*两条线段间的最短距离*/(Point p1, Point p2, Point p3, Point p4)
+{
+    return min(min(DistanceToSegment(p1, p3, p4), DistanceToSegment(p2, p3, p4)),
+     min(DistanceToSegment(p3, p1, p2), DistanceToSegment(p4, p1, p2)));
+}

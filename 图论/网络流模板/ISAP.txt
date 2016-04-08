@@ -1,0 +1,83 @@
+struct edge{
+    int from,to,w;
+    int next;
+}G[MAXM];
+int head[MAXN];
+int Edge;
+
+void add_edge(int u, int v, int w)
+{
+    G[Edge].from = u;
+    G[Edge].to = v;
+    G[Edge].w = w;
+    G[Edge].next = head[u];
+    head[u] = Edge++;
+    G[Edge].from = v;
+    G[Edge].to = u;
+    G[Edge].w = 0;
+    G[Edge].next = head[v];
+    head[v] = Edge++;
+}
+
+int curedge[MAXN],parent[MAXN],level[MAXN];
+int cnts[MAXN],augment[MAXN];
+int isap(int n,int s, int e)
+{
+    int i,u,v,max_flow,aug,min_lev;
+
+    memset(level,0,sizeof(level));
+    memset(cnts,0,sizeof(cnts));
+    for (i=0;i<=n;i++) curedge[i] = head[i];
+    max_flow=0;
+    augment[s]=INF;
+    parent[s]=-1;
+    u=s;
+    while (level[s]<n)
+    {
+        if (u==e)
+        {
+            max_flow+=augment[e];
+            aug=augment[e];
+            for (v=parent[e];v!=-1;v=parent[v])
+            {
+                i=curedge[v];
+                G[i].w-=aug;
+                G[i^1].w+=aug;
+                augment[G[i].to]-=aug;
+                if (G[i].w==0) u=v;
+            }
+        }
+        for (i=curedge[u];i!=-1;i=G[i].next)
+        {
+            v=G[i].to;
+            if (G[i].w>0 && level[u]==(level[v]+1))
+            {
+                augment[v]=min(augment[u],G[i].w);
+                curedge[u]=i;
+                parent[v]=u;
+                u=v;
+                break;
+            }
+        }
+        if (i==-1)
+        {
+            if (--cnts[level[u]]==0)
+            {
+                break;
+            }
+            curedge[u]=head[u];
+            min_lev=n;
+            for (i=head[u];i!=-1;i=G[i].next)
+            {
+                if (G[i].w>0)
+                {
+                    min_lev=min(level[G[i].to],min_lev);
+                }
+            }
+            level[u]=min_lev+1;
+            cnts[level[u]]++;
+            if (u!=s) u=parent[u];
+        }
+    }
+    return max_flow;
+}

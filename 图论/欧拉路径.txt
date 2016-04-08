@@ -1,0 +1,14 @@
+有向图的欧拉路径（无向图通过度数判断）
+void dfs(int u,int fa)//c表示当前DFS的位置，pa表示这个字母是从第pa个边来的，最后循环完加入ans数组即可，显然ans是倒序加入的。
+{
+	for (int i=head[u];i!=-1;i=G[i].next)
+	{
+		int v=G[i].to;
+		if (!b[v])
+		{
+			b[v]=1;
+			dfs(v,i);
+		}
+	}
+	if (pa>0) ans.PB(fa);
+}

@@ -1,0 +1,35 @@
+队列STL基本用法
+#include <queue>
+using namespace std;
+queue <int> q;
+q.front(); 		//取队头
+q.push(x); 	//入队
+q.pop(); 		//出队
+q.empty(); 	//是否为空
+q.size();		//队列中元素个数
+=============================
+优先队列STL用法
+类似于堆的特性
+#include <queue>
+using namespace std;
+priority_queue <int> q;
+q.top(); 	 	//取队首元素，默认是队列中的最大值，注意，没有元素时会Runtime error
+q.empty()		//判断为空，则返回true
+q.pop()		//删除第一个元素
+q.push()		//加入一个元素
+q.size()		//返回队列中元素的个数
+
+这样默认是元素大的优先级高
+如果要元素小的
+priority_queue<int vector<int>,greater<int> >  q;/*最右边两个>>中间应该有一个空格哦~*/
+vector<int>为容器类型
+greater<int>为比较函数
+也可自定义比较函数
+struct cmp
+{
+	bool operator()(const int &a,const int &b)
+	{
+		return a<b;
+	}
+};
+priority_queue<int,vector<int>,cmp> p;

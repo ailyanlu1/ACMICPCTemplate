@@ -1,0 +1,54 @@
+void kp()
+{
+    int i;
+    int mx=0;
+    int id;
+    for (i=n; str[i]!=0; i++) //清除n后边多余的部分
+        str[i]=0;//没有这一句有问题。。就过不了ural1297，比如数据：ababaaba
+    for (i=1; i<n; i++)
+    {
+        if (mx>i) p[i]=_min(p[2*id-i],p[id]+id-i);
+            //因为是从左往右扫描的这里i>id,2*id-i是i关于id的对称点，该对称点在id的左端
+            //p[id]+id是描述中的mx，即id向右延伸的端点位置
+            //显然向右延伸是可能超出mx的，所以要有下边的for循环
+        else p[i]=1;
+        for (;str[i+p[i]]==str[i-p[i]];p[i]++);
+
+        if (p[i]+i>mx)//更新mx与id，因为mx是向右延伸的最大长度，所以实时更新
+        {
+            mx=p[i]+i;
+            id=i;
+        }
+    }
+}
+
+void init()//处理字符串
+{
+    int i,j,k;
+    str[0]='$';
+    str[1]='#';
+    for(i=0;i<n;i++)
+    {
+        str[i*2+2]=s[i];
+        str[i*2+3]='#';
+    }
+    n=n*2+2;
+    s[n]=0;
+}
+
+int main()
+{
+    int i,ans;
+    while(scanf("%s",s)!=EOF)
+    {
+        n=strlen(s);//n为给定字符串s的长度
+        init();
+        kp();
+        ans=0;
+        for(i=0; i<n; i++)
+            if(p[i]>ans)//寻找最大的长度ans
+                ans=p[i];
+        printf("%d\n",ans-1);
+    }
+    return 0;
+}

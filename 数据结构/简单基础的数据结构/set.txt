@@ -1,0 +1,77 @@
+#include<set>
+实现了红黑树的平衡二叉检索树的数据结构，插入元素时，它会自动调整二叉树的排列，把元素放到适当的位置，以保证每个子树根节点键值大于左子树所有节点的键值，小于右子树所有节点的键值；另外，还得保证根节点左子树的高度与右子树高度相等。
+平衡二叉检索树使用中序遍历算法，检索效率高于vector、deque和list等容器，另外使用中序遍历可将键值按照从小到大遍历出来。
+构造set集合主要目的是为了快速检索，不可直接去修改键值。
+
+set <int> p;		//集合容器，没有重复元素
+multiset <int> p;		//集合容器，有重复元素
+
+p.insert(K);		//将K加入集合p中
+p.size();			//返回元素个数
+p.empty();		//判断是否为空
+p.clear();			//清除所有元素
+p.erase(K);		//将集合中元素K删去
+p.count(K);		//返回某个值元素的个数（只对multiset有效，set的count()值只有0和1）
+p.lower_bound() 		//返回指向大于（或等于）某值的第一个元素的迭代器，注意这个比直接用lower_bound 快
+p.upper_bound()		//返回指向大于（不等于）某值的第一个元素的迭代器，注意这个比直接用upper_bound 快
+
+set<int>::iterator it;	//定义迭代器
+set<int>::reverse_iterator it;	//定义反向迭代器
+it=p.begin();		//指向头
+it=p.end();		//指向末尾，末尾不包含元素
+it=rbegin() 		//返回指向集合中最后一个元素的反向迭代器
+it=rend() 			//返回指向集合中第一个元素的反向迭代器
+it=p.find(K);		//返回一个指向被查找到元素的迭代器，如果没有找到返回p.end();
+
+for (set<int>::iterator it=p.begin();it!=p.end();it++)
+{
+	cout<<*it<<endl;
+}//输出元素，默认按照升序排序
+
+/*注意迭代器指针不能进行四则运算，只能自增自减*/
+/*set的插入，查找，删除操作复杂度均为o(log(N))*/
+
+其他不常用的函数：
+
+equal_range() 	返回集合中与给定值相等的上下限的两个迭代器
+get_allocator() 	返回集合的分配器
+
+key_comp() 	返回一个用于元素间值比较的函数
+max_size() 	返回集合能容纳的元素的最大限值
+swap() 		交换两个集合变量
+value_comp() 	返回一个用于比较元素间的值的函数
+
+自定义比较函数
+    (1)元素不是结构体：
+        例：
+        //自定义比较函数myComp,重载“（）”操作符
+        struct myComp
+        {
+            bool operator()(const your_type &a,const your_type &b)
+            {
+                return a.data-b.data>0;
+            }
+        }
+        set<int,myComp>s;
+        ......
+        set<int,myComp>::iterator it;
+    (2)如果元素是结构体，可以直接将比较函数写在结构体内。
+        例：
+        struct Info
+        {
+            string name;
+            float score;
+            //重载“<”操作符，自定义排序规则
+            bool operator < (const Info &a) const
+            {
+                //按score从大到小排列
+                return a.score<score;
+            }
+        }
+        set<Info> s;
+        ......
+        set<Info>::iterator it;
+
+==========================
+关于multiset
+删除操作：st.erase(st.find(x));这样是删除一个数X，而不是把值为X的数全删掉。

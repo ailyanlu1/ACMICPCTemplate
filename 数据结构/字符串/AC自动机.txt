@@ -1,0 +1,100 @@
+插入操作：ac.insert(p[i],i);
+构造失配函数：ac.getFail();
+计算模板T的cnt值：ac.find(T);
+
+struct ACauto
+{
+    int ch[MAXN][26];// 字典树，类似于前向星，ch[i][j]为当前编号为i的结点，下一个字符为j的所指向的编号。
+    int size;
+    int f[MAXN],last[MAXN],val[MAXN],cnt[MAXN];
+    //val用来在字典树中的模板串末尾处标记，标记为模板串的序号（从1开始） 
+    //last后缀链接：结点J沿着失配指针往回走时，遇到的下一个单词尾结点。 
+    //cnt用来统计配对数，每一个模板对应一个值，所以大小为模板数数量。只在print函数中使用
+     
+    void init()//初始化
+    {
+        size=1;//字典树中的节点数 
+        memset(ch[0],0,sizeof(ch[0]));//字典树 
+        memset(cnt,0,sizeof(cnt)); //用于统计配对数
+    }
+     
+    int idx(char c)//用于返回编号
+    {
+        return c-'a';
+    }
+     
+    void insert(char *s,int v)//将字符串s插入字典树中，其中v是字符串的编号，从1开始编号 
+    {
+        int u=0,len=strlen(s);
+        for (int i=0;i<len;i++)
+        {
+            int c=idx(s[i]);
+            if (!ch[u][c])
+            {
+                memset(ch[size],0,sizeof(ch[size]));
+                val[size]=0;
+                ch[u][c]=size++;
+            }
+            u=ch[u][c];
+        }
+        val[u]=v;//在字符串末尾做出标记，标记为字符串的编号i
+    }
+     
+    void print(int j)//用于输出处理，
+    {
+        if (j)
+        {
+            cnt[val[j]]++;//成功配对数加1
+            print(last[j]);//继续沿后缀链接走检查是否和某个模板匹配。
+        }
+    }
+     
+    int getFail()//BFS构造失配函数
+    {
+        queue <int> q;
+        f[0]=0;
+        for (int c=0;c<26;c++)//把各个模板的第一个字符压入队列中 
+        {
+            int u=ch[0][c];
+            if (u)
+            {
+                f[u]=0;
+                q.push(u);
+                last[u]=0;
+            }
+        }
+         
+        while (!q.empty())
+        {
+            int r=q.front(); q.pop();
+            for (int c=0;c<26;c++)
+            {
+                int u=ch[r][c];
+                if (!u)
+                {
+                    ch[r][c]=ch[f[r]][c];//如果节点不存在，直接链接到->失配边所指向的节点，这样能够化简计算 
+                    continue;
+                }
+                q.push(u);
+                f[u]=ch[f[r]][c];//构造当前节点的失配函数：如果失配，找到失配点的父亲节点r，父亲沿着失配边f[r]走向下一个节点即可。 
+                last[u]=val[f[u]]?f[u]:last[f[u]];//构造后缀链接：如果沿失配指针走的节点是尾节点，就标记为失配指针指向的节点，
+                                                    //否则标记为其后缀链接的值（类似于递归）。 
+            }
+        }
+    }
+                 
+     
+    void find(char *T)//AC自动机主函数，在文本串T中寻找模板 
+    {
+        int n=strlen(T);
+        int j=0;
+        for (int i=0;i<n;i++)
+        {
+            int c=idx(T[i]);//返回字符的编号 
+            while(j&&!ch[j][c]) j=f[j];//如果字符不存在，即失配，就顺着失配边走，直到可以匹配 
+            j=ch[j][c];//如果可以匹配，就走向下一个结点 
+            if (val[j]) print(j);//如果j指向某个模板的尾部则输出 
+            else if (last[j]) print(last[j]);//即使不是某个模板的尾部也要沿后缀链接走，检查是否为某个模板的尾部。
+        }
+    }
+}ac;

@@ -1,0 +1,52 @@
+
+void tarjan(int u)
+{
+	int x;
+	dfn[u]=low[u]=++index;
+	tar.push(u);
+	for (int i=head[u];i!=-1;i=G[i].next)
+	{
+		int v=G[i].to;
+		if (!dfn[v])
+		{
+			tarjan(v);
+			low[u]=min(low[u],low[v]);
+		} else
+		if (!scc[v])
+		{
+			low[u]=min(low[u],dfn[v]);
+		}
+	}
+	if (low[u]==dfn[u])
+	{
+		cnt++;
+		do
+		{
+			x=tar.top();
+			tar.pop();
+			scc[x]=cnt;
+		} while (x!=u);
+	}
+}
+
+void build_new_map()
+{
+	memset(ru,0,sizeof(ru));
+	memset(chu,0,sizeof(chu));
+	for (int i=1;i<=m;i++)
+	{
+		if (scc[G[i].to]==scc[G[i].from]) continue;
+		add_new_edge(scc[G[i].from],scc[G[i].to]);
+	}
+}
+
+void build_map()
+{
+	memset(dfn,0,sizeof(dfn));
+	memset(low,0,sizeof(low));
+	memset(scc,0,sizeof(scc));
+	index=cnt=0;
+	for (i=1;i<=n;i++)
+ 		if (!dfn[i]) tarjan(i);
+	build_new_map();
+}

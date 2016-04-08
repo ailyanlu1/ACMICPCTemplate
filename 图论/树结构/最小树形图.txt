@@ -1,0 +1,92 @@
+有根的情况: 直接求.
+无根的情况: 建立超级根节点,向每个点连有向边,边权大于所有边权和即可.
+
+int edge,head[MAXN];
+struct edgenode
+{
+    int from,to,next;
+    double w;
+} G[MAXM];
+
+void add_edge(int x,int y,double w)
+{
+    G[edge].from=x;
+    G[edge].to=y;
+    G[edge].w=w;
+    G[edge].next=head[x];
+    head[x]=edge++;
+}
+
+int dcmp(double x)
+{
+    if (fabs(x)<eps) return 0;
+    return x<0?-1:1;
+}
+
+int pre[MAXN],id[MAXN],vis[MAXN];
+double in[MAXN];
+
+//首先需要枚举根，这个模板并不包含根，然后NV是点数，NE是边数，直接用edge即可
+double Direct_MST(int root,int NV,int NE)
+{
+    double ret=0;
+    while (1)
+    {
+        for (int i=0;i<NV;i++) in[i]=INF;
+        memset(pre,-1,sizeof(pre));
+        memset(vis,-1,sizeof(vis));
+        memset(id,-1,sizeof(id));
+        for (int i=0;i<NE;i++)
+        {
+            if (G[i].from==G[i].to) continue;
+            int v=G[i].to;
+            if (dcmp(G[i].w-in[v])<0)
+            {
+                pre[v]=G[i].from;
+                in[v]=G[i].w;
+            }
+        }
+        for (int i=0;i<NV;i++)
+        {
+            if (dcmp(in[i]-INF)==0 && i!=root)
+            {
+                return -1;
+            }
+        }
+        int cnt=0;
+        in[root]=0;
+        for (int i=0;i<NV;i++)
+        {
+            ret+=in[i];
+            int v=i;
+            while (vis[v]!=i && id[v]==-1 && v!=root)
+            {
+                vis[v]=i;
+                v=pre[v];
+            }
+            if (v!=root && id[v]==-1)
+            {
+                for (int u=pre[v];u!=v;u=pre[u])
+                {
+                    id[u]=cnt;
+                }
+                id[v]=cnt++;
+            }
+        }
+        if (cnt==0) break;
+        for (int i=0;i<NV;i++)
+        {
+            if (id[i]==-1) id[i]=cnt++;
+        }
+        for (int i=0;i<NE;i++)
+        {
+            int v=G[i].to;
+            G[i].from=id[G[i].from];
+            G[i].to=id[G[i].to];
+            G[i].w-=in[v];
+        }
+        NV=cnt;
+        root=id[root];
+    }
+    return ret;
+}

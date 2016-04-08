@@ -1,0 +1,70 @@
+普通KMP：求出A[i]往前和B的前缀匹配的最大匹配长度，记为ex[i]
+扩展KMP：求出A[i]往后和B的前缀匹配的最大匹配长度，记为ex[i]
+
+【KMP】
+lenA = strlen(A);lenB = strlen(B);
+next[0] = lenB;
+int j = 0;
+re2(i, 1, lenB)
+{
+    while (j && B[i] != B[j]) j = next[j - 1];
+    if (B[i] == B[j]) j++;
+    next[i] = j;
+}
+j = 0;
+re(i, lenA)
+{
+    while (j && A[i] != B[j]) j = next[j - 1];
+    if (A[i] == B[j]) j++;
+    ex[i] = j;
+}
+
+
+【扩展KMP】
+
+lenA = strlen(A);
+lenB = strlen(B);
+next[0] = lenB;
+next[1] = lenB - 1;
+re(i, lenB-1) if (B[i] != B[i + 1])
+{
+    next[1] = i;
+    break;
+}
+int j, k = 1, p, L;
+re2(i, 2, lenB)
+{
+    p = k + next[k] - 1;
+    L = next[i - k];
+    if (i + L <= p) next[i] = L;
+    else
+    {
+        j = p - i + 1;
+        if (j < 0) j = 0;
+        while (i + j < lenB && B[i + j] == B[j]) j++;
+        next[i] = j;
+        k = i;
+    }
+}
+int minlen = lenA <= lenB ? lenA : lenB;
+ex[0] = minlen;
+re(i, minlen) if (A[i] != B[i])
+{
+    ex[0] = i;
+    break;
+}
+k = 0;
+re2(i, 1, lenA)
+{
+    p = k + ex[k] - 1;
+    L = next[i - k];
+    if (i + L <= p) ex[i] = L;
+    else
+    {
+        j = p - i + 1;
+        if (j < 0) j = 0;
+        while (i + j < lenA && j < lenB && A[i + j] == B[j]) j++;
+        ex[i] = j;
+        k = i;
+    }
+}

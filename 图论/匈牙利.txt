@@ -1,0 +1,53 @@
+#include<cstdio>
+#include<cstring>
+#include<cmath>
+#include<iostream>
+#include<algorithm>
+#define eps 0.000001
+using namespace std;
+int i,j,k,n,m,x,y,T,ans,big,cas,linked[1005];
+bool used[1005],flag[1005],map[1005][1005];
+
+bool find(int u)
+{
+	for (int i=0;i<=m;i++)
+	{
+		if (map[u][i]&&!used[i])
+		{
+			used[i]=1;
+			if (!linked[i]||find(linked[i]))
+			{
+				linked[i]=u;
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+int max_match()
+{
+	int ans=0;
+	memset(linked,0,sizeof(linked));
+	for (int i=1;i<=n;i++)
+	{
+		memset(used,0,sizeof(used));
+		if (find(i)) ans++;
+	}
+	return ans;
+}
+
+int main()
+{
+	while (scanf("%d%d%d",&k,&n,&m),k)
+	{
+		memset(map,0,sizeof(map));
+		for (i=1;i<=k;i++)
+		{
+			scanf("%d%d",&x,&y);
+			map[x][y]=1;
+		}
+		printf("%d\n",max_match());
+	}
+	return 0;
+}

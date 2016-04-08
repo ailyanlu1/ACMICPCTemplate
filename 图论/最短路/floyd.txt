@@ -1,0 +1,16 @@
+Floyd
+for k:=0 to n-1 do
+   for i:=0 to n-1 do
+      for j:=0 to n-1 do
+         if (i=k)or(j=k)or(i=j) then continue;
+         if (a[i,j]>a[i,k]+a[k,j]) then
+            a[i,j]:=a[i,k]+a[k,j];
+
+传递闭包
+基于Floyd的思想：
+for k:=1 to n do
+   for i:=1 to n do
+      for j:=1 to n do
+         can[i,j]:=can[i,j] or (can[i,k] and can[k,j]);
+
+也可以使用SPFA来求解，这样会更快些。

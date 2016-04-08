@@ -1,0 +1,16 @@
+int isPointInPolygon(Point P, Point* Poly, int n)//转角法判定点P是否在多边形内部
+{
+    int wn=0;
+    for(int i = 0; i < n; ++i)
+    {
+        if(OnSegment(P, Poly[i], Poly[(i+1)%n]))    return -1;    //在边界上
+        int k = dcmp((Poly[(i+1)%n] - Poly[i])^( P - Poly[i]));
+        int d1 = dcmp(Poly[i].y - P.y);
+        int d2 = dcmp(Poly[(i+1)%n].y - P.y);
+        if(k > 0 && d1 <= 0 && d2 > 0)    wn++;
+        if(k < 0 && d2 <= 0 && d1 > 0)    wn--;
+    }
+    if(wn != 0)    return 1;    //内部
+    return 0;                //外部
+}
+

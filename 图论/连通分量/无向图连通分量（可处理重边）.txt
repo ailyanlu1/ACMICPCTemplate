@@ -1,0 +1,197 @@
+void tarjan(int u,int fa,int path)//u当前节点，fa父亲节点，path边u->fa在前向星中的编号
+{
+    vis[u]=1;
+    dfn[u]=low[u]=++time;
+    for (int i=head[u];i!=-1;i=G[i].next)
+    {
+        if (i==path) continue;
+
+        int v=G[i].to;
+        if (!vis[v])
+        {
+            tarjan(v,u,i^1);
+            low[u]=min(low[u],low[v]);
+            if (low[v]>dfn[u]) 
+            {
+                G[i].flag=1;
+                G[i^1].flag=1;
+            }
+        }else low[u]=min(low[u],dfn[v]);
+    }
+    vis[u]=2;
+}
+
+例子（CF231E）
+
+int edge,head[MAXN],bin[MAXN],headS[MAXN],edgeS,vis[MAXN],d[MAXN],id[MAXN],num[MAXN];
+struct edgenode
+{
+    int to,next,flag;
+} G[MAXM],S[MAXM];
+
+void add_edge(int x,int y)
+{
+    G[edge].to=y;
+    G[edge].flag=0;
+    G[edge].next=head[x];
+    head[x]=edge++;
+}
+
+void add_edgeS(int x,int y)
+{
+    S[edgeS].to=y;
+    S[edgeS].flag=0;
+    S[edgeS].next=headS[x];
+    headS[x]=edgeS++;
+}
+
+int fa[MAXN];
+int findset(int x)
+{
+    return x==fa[x]?x:fa[x]=findset(fa[x]);
+}
+void unionset(int x,int y)
+{
+    fa[findset(x)]=findset(y);
+}
+
+int dfn[MAXN],low[MAXN],time;
+void dfs(int u,int fa)
+{
+    vis[u]=1;
+    dfn[u]=low[u]=++time;
+    for (int i=head[u];i!=-1;i=G[i].next)
+    {
+        int v=G[i].to;
+        if (v!=fa && vis[v]==1)
+        {
+            low[u]=min(low[u],dfn[v]);
+        }
+
+        if (!vis[v])
+        {
+            dfs(v,u);
+            low[u]=min(low[u],low[v]);
+            if (low[v]>dfn[u]) G[i].flag=1;
+        }
+    }
+    vis[u]=2;
+}
+
+void dive(int u,int scc)
+{
+    id[u]=scc;
+    vis[u]=1;
+    num[scc]++;
+    for (int i=head[u];i!=-1;i=G[i].next)
+    {
+        if (!G[i].flag && !vis[G[i].to])
+            dive(G[i].to,scc);
+    }
+}
+
+void dis(int u,int dep)//记录当前节点到根节点有多少个“环”
+{
+    vis[u]=1;
+    d[u]=dep;
+    for (int i=headS[u];i!=-1;i=S[i].next)
+    {
+        int v=S[i].to;
+        if (!vis[v])
+        {
+            if (num[v]>2) dis(v,dep+1);
+            else dis(v,dep);
+        }
+    }
+}
+
+vector<pair<int,int> > Q[MAXN];
+int ans[MAXN];
+void tarjan(int u)
+{
+    vis[u]=true;
+    for (int i=0;i<Q[u].size();i++)
+    {
+        int v=Q[u][i].X,id=Q[u][i].Y;
+        if (vis[v])
+        {
+            int com=findset(v);
+            ans[id]=d[u]+d[v]-2*d[com];
+            if (num[com]>2) ans[id]++;
+        }
+    }
+
+    for (int i=headS[u];i!=-1;i=S[i].next)
+    {
+        int v=S[i].to;
+        if (!vis[v])
+        {
+            tarjan(v);
+            unionset(v,u);
+        }
+    }
+}
+
+
+int main()
+{
+    memset(head,-1,sizeof(head));
+    edge=0;
+    memset(headS,-1,sizeof(headS));
+    edgeS=0;
+    scanf("%d%d",&n,&m);
+    while (m--)
+    {
+        scanf("%d%d",&x,&y);
+        add_edge(x,y);
+        add_edge(y,x);
+    }
+
+    dfs(1,-1); 
+
+    memset(vis,0,sizeof(vis));
+    int scc=1;
+    for (int i=1;i<=n;i++)
+    {
+        if (!vis[i]) dive(i,scc++);
+    }
+
+    for (i=1;i<=n;i++)
+    {
+        for (int j=head[i];j!=-1;j=G[j].next)
+        {
+            int v=G[j].to;
+            if (id[i]!=id[v])
+            {
+                add_edgeS(id[i],id[v]);
+                add_edgeS(id[v],id[i]);
+            }
+        }
+    }
+
+    int q;
+    scanf("%d",&q);
+    for (i=0;i<q;i++)
+    {
+        scanf("%d%d",&x,&y);
+        x=id[x];y=id[y];
+        Q[x].PB(MP(y,i));
+        Q[y].PB(MP(x,i));
+    }
+
+    memset(vis,0,sizeof(vis));
+    if (num[1]>2) dis(1,1); else dis(1,0);
+
+    memset(vis,0,sizeof(vis));
+    for (i=1;i<=n;i++) fa[i]=i;
+    tarjan(1);
+
+    bin[0]=1;
+    for(int i=1;i<MAXN;i++)
+        bin[i]=bin[i-1]*2%1000000007;
+    for (int i=0;i<q;i++)
+    {
+        printf("%d\n",bin[ans[i]]);
+    }
+    return 0;
+}
